@@ -26,7 +26,7 @@ function generateStoryMarkup(story) {
   return $(`
       <li id="${story.storyId}">
 
-        <span><i class="fav-story-icon far fa-heart"></i></span>
+        <i class="fav-story-icon far fa-heart"></i>
 
         <a href="${story.url}" target="a_blank" class="story-link">
           ${story.title}
@@ -93,3 +93,5 @@ function getNewStoryFromUI() {
 }
 
 $newStoryForm.on("submit", submitStory);
+
+

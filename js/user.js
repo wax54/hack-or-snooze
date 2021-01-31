@@ -114,3 +114,18 @@ function updateUIOnUserLogin() {
 
   updateNavOnLogin();
 }
+
+function handleStoryFavorite(evt) {
+  const heart = evt.target;
+  const storyId = heart.parentElement.id
+
+  currentUser.toggleFavoriteStory(storyId);
+
+  //toggle color
+  heart.classList.toggle('favorited');
+  // toggle solid vs outline
+  heart.classList.toggle('fas');
+  heart.classList.toggle('far');
+}
+
+$allStoriesList.on('click', '.fav-story-icon', handleStoryFavorite);

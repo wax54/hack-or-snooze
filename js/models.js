@@ -206,4 +206,27 @@ class User {
       return null;
     }
   }
+
+
+  async toggleFavoriteStory(storyId) {
+
+    let method = 'POST';
+
+    const isFavorited = this.favorites.findIndex(s => s.storyId == storyId);
+
+    if (isFavorited !== -1) {
+      //Already a favorite, delete it
+      method = 'DELETE';
+    }
+
+    const res = await axios({
+      url: `${BASE_URL}/users/${this.username}/favorites/${storyId}`,
+      method: method,
+      data: { token: this.loginToken }
+    });
+
+    const newFaves = res.data.user.favorites
+
+    this.favorites = newFaves.map(s => new Story(s));
+  }
 }
