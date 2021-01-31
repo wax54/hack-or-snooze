@@ -74,6 +74,8 @@ class StoryList {
    */
 
   async addStory( user, newStory ) {
+    console.log(user);
+    console.log(newStory);
     try{
         const res = await axios({
           url: `${BASE_URL}/stories`,
