@@ -31,15 +31,16 @@ function updateNavOnLogin() {
   console.debug("updateNavOnLogin");
   $(".main-nav-links").show();
   $navLogin.hide();
-  $navMakeStory.show();
+
+  $navSubmit.show();
   $navLogOut.show();
   $navUserProfile.text(`${currentUser.username}`).show();
 }
 
-function navNewStoryClick(evt){
+function navSubmitClick(evt) {
   console.debug("navNewStoryClick");
   hidePageComponents();
   $newStoryForm.show();
 }
-$navNewStory.on("click", navNewStoryClick);
+$navSubmit.on("click", navSubmitClick);
 
