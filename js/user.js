@@ -110,22 +110,29 @@ function saveUserCredentialsInLocalStorage() {
 function updateUIOnUserLogin() {
   console.debug("updateUIOnUserLogin");
 
+  for (let { storyId } of currentUser.favorites) {
+    const $story = $('#' + storyId);
+    if ($story.length) {
+      toggleHeart($story);
+    }
+  }
+
+  hidePageComponents();
+
   $allStoriesList.show();
+  $('.fav-story-icon').show();
 
   updateNavOnLogin();
 }
 
 function handleStoryFavorite(evt) {
-  const heart = evt.target;
-  const storyId = heart.parentElement.id
+  const $story = $(this).parent();
+  const storyId = $story.attr('id');
 
   currentUser.toggleFavoriteStory(storyId);
+  
+  toggleHeart($story);
 
-  //toggle color
-  heart.classList.toggle('favorited');
-  // toggle solid vs outline
-  heart.classList.toggle('fas');
-  heart.classList.toggle('far');
 }
 
 $allStoriesList.on('click', '.fav-story-icon', handleStoryFavorite);

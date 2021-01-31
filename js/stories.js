@@ -55,6 +55,17 @@ function putStoriesOnPage() {
 
 function addStoryToPage(story, prepend = false) {
   const $story = generateStoryMarkup(story);
+  if (currentUser) {
+    //curr Story is a favorite of our user
+    // if (currentUser.favorites.includes(story.storyId)) {
+    //   toggleHeart($story);
+    // }
+  } else {
+    //no user is logged in, hide heart
+    const $heart = $story.find('.fav-story-icon').hide();
+
+  }
+
   if (prepend) {
     $allStoriesList.prepend($story);
   } else {
@@ -62,7 +73,14 @@ function addStoryToPage(story, prepend = false) {
   }
 }
 
+function toggleHeart($story) {
+  const $heart = $story.find('.fav-story-icon');
+  //toggle color
+  $heart.toggleClass('favorited');
+  // toggle solid vs outline
+  $heart.toggleClass('fas far');
 
+}
 
 //TODO
 async function submitStory(evt) {

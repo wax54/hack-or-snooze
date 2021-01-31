@@ -74,8 +74,7 @@ class StoryList {
    */
 
   async addStory( user, newStory ) {
-    console.log(user);
-    console.log(newStory);
+
     try{
         const res = await axios({
           url: `${BASE_URL}/stories`,
@@ -84,6 +83,7 @@ class StoryList {
         }); 
         newStory = new Story(res.data.story);
         this.stories.push(newStory);
+      currentUser.ownStories.push(newStory);
         return newStory;
     }
     catch (e) {
