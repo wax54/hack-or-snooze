@@ -7,7 +7,8 @@
 .stories-list > li {
   color: gray;
   font-size: 0.8rem;
-  margin: 10px 0;
+  padding: 5px;
+  margin-bottom :10px;
 }
 
 #stories-loading-msg {
@@ -35,5 +36,17 @@
 }
 
 .story-user {
-  display: block;
+  display: inline-block;
+}
+
+.fav-story-icon{
+  top:0;
+  bottom:0;
+  float: left;
+  font-size: 1.5rem;
+  margin: 5px;
+  color:black;
+}
+.favorited{
+  color:red;
 }
