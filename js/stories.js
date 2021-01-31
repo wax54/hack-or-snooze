@@ -44,35 +44,49 @@ function putStoriesOnPage() {
 
   // loop through all of our stories and generate HTML for them
   for (let story of storyList.stories) {
-    const $story = generateStoryMarkup(story);
-    $allStoriesList.append($story);
+    addStoryToPage(story);
   }
 
   $allStoriesList.show();
 }
 
-//TODO
-function getStoryFromUI() {
-  const title = $('#new-story-title').val();
-  const author = $('#new-story-author').val();
-  const url = $('#new-story-url').val();
-  return { title, author, url };
-
+function addStoryToPage(story, prepend = false) {
+  const $story = generateStoryMarkup(story);
+  if (prepend) {
+    $allStoriesList.prepend($story);
+  } else {
+    $allStoriesList.append($story);
+  }
 }
+
+
 
 //TODO
 async function submitStory(evt) {
   console.debug("Submit Story", evt);
   evt.preventDefault();
-  const story = getStoryFromUI();
-  console.log(story);
+
+  const story = getNewStoryFromUI();
+  //add the story to the DB
   const res = await storyList.addStory(currentUser, story);
+  //res will be false on failure and a story on success
   if (res) {
-    const $story = generateStoryMarkup(res);
-    $allStoriesList.prepend($story);
+    addStoryToPage(res, true);
+    $newStoryForm.trigger("reset");
+    hidePageComponents();
+    $allStoriesList.show();
   } else {
     //TODO: Let user Know
   }
+}
+
+//TODO
+function getNewStoryFromUI() {
+  const title = $('#new-story-title').val();
+  const author = $('#new-story-author').val();
+  const url = $('#new-story-url').val();
+  return { title, author, url };
+
 }
 
 $newStoryForm.on("submit", submitStory);
