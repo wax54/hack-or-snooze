@@ -17,14 +17,18 @@ async function login(evt) {
   const username = $("#login-username").val();
   const password = $("#login-password").val();
 
-  // User.login retrieves user info from API and returns User instance
-  // which we'll make the globally-available, logged-in user.
-  currentUser = await User.login(username, password);
+  try {
+    // User.login retrieves user info from API and returns User instance
+    // which we'll make the globally-available, logged-in user.
+    currentUser = await User.login(username, password);
 
-  $loginForm.trigger("reset");
+    $loginForm.trigger("reset");
+    saveUserCredentialsInLocalStorage();
+    updateUIOnUserLogin();
+  } catch (e) {
+    alert("Those Creds Didn't Work, Bub. Try Again.");
+  }
 
-  saveUserCredentialsInLocalStorage();
-  updateUIOnUserLogin();
 }
 
 $loginForm.on("submit", login);
@@ -38,15 +42,21 @@ async function signup(evt) {
   const name = $("#signup-name").val();
   const username = $("#signup-username").val();
   const password = $("#signup-password").val();
+  try {
+    // User.signup retrieves user info from API and returns User instance
+    // which we'll make the globally-available, logged-in user.
+    currentUser = await User.signup(username, password, name);
 
-  // User.signup retrieves user info from API and returns User instance
-  // which we'll make the globally-available, logged-in user.
-  currentUser = await User.signup(username, password, name);
+    saveUserCredentialsInLocalStorage();
+    updateUIOnUserLogin();
 
-  saveUserCredentialsInLocalStorage();
-  updateUIOnUserLogin();
+    $signupForm.trigger("reset");
+  } catch (e) {
+    console.log(e);
+    if (e.response.status == 409) alert('Sorry, Those Credentials Are Already Taken.');
+    else alert("Sorry, We can't use those Credentials, try something else.");
+  }
 
-  $signupForm.trigger("reset");
 }
 
 $signupForm.on("submit", signup);
@@ -103,6 +113,8 @@ function saveUserCredentialsInLocalStorage() {
 /** When a user signs up or registers, we want to set up the UI for them:
  *
  * - show the stories list
+ * - show the hearts
+ * - heart already hearted stories
  * - update nav bar options for logged-in user
  * - generate the user profile part of the page
  */
@@ -119,9 +131,12 @@ function updateFavoritesOnPage() {
   if (!currentUser) return;
   //add hearts to all stories already favorited by user
   for (let { storyId } of currentUser.favorites) {
+    //get the li story from the DOM
     const $story = $('#' + storyId);
+    //if it grabbed a object on the screen...
     if ($story.length) {
-      addHeart($story);
+      //...fill the heart
+      fillHeart($story);
     }
   }
 }

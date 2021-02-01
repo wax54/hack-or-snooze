@@ -138,7 +138,7 @@ class User {
       method: "POST",
       data: { user: { username, password, name } },
     });
-
+    let { user } = response.data;
     return new User(
       {
         username: user.username,
@@ -189,9 +189,9 @@ class User {
         method: "GET",
         params: { token },
       });
-
+      //take the user out of the response
       let { user } = response.data;
-
+      
       return new User(
         {
           username: user.username,

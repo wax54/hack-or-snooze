@@ -6,13 +6,10 @@ let storyList;
 
 
 /** Get all stories*/
-async function getAllStories() {
-  storyList = await StoryList.getStories();
-}
 
-async function showAllStories() {
+async function showAndShowAllStories() {
   $storiesLoadingMsg.show();
-  await getAllStories();
+  storyList = await StoryList.getStories();
   $storiesLoadingMsg.hide();
   putStoriesOnPage();
 }
@@ -85,12 +82,13 @@ function toggleHeart($story) {
   $heart.toggleClass('fas far');
 
 }
-function addHeart($story) {
+function fillHeart($story) {
   const $heart = $story.find('.fav-story-icon');
   //toggle color
   $heart.addClass('favorited');
   // toggle solid vs outline
   $heart.addClass('fas');
+  $heart.removeClass('far');
 }
 
 

@@ -8,7 +8,7 @@
 
 function navAllStories(evt) {
   hidePageComponents();
-  showAllStories();
+  getAndShowAllStories();
 }
 
 $body.on("click", "#nav-all", navAllStories);
@@ -20,17 +20,6 @@ function navFavoritesClick(evt) {
   showFavorites();
 }
 $navFavorites.on("click", navFavoritesClick);
-
-
-/** Show login/signup on click on "login" */
-
-function navLoginClick(evt) {
-  hidePageComponents();
-  $loginForm.show();
-  $signupForm.show();
-}
-
-$navLogin.on("click", navLoginClick);
 
 
 /** Show new story form on click on "submit" */
@@ -45,6 +34,15 @@ $navSubmit.on("click", navSubmitClick);
 
 
 
+/** Show login/signup on click on "login" */
+
+function navLoginClick(evt) {
+  hidePageComponents();
+  $loginForm.show();
+  $signupForm.show();
+}
+
+$navLogin.on("click", navLoginClick);
 
 
 /** When a user first logins in, update the navbar to reflect that. */
