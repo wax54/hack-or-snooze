@@ -35,8 +35,8 @@ function hidePageComponents() {
   components.forEach(c => c.hide());
 }
 
-/** Overall function to kick off the app. */
 
+/** Overall function to kick off the app. */
 async function start() {
 
 

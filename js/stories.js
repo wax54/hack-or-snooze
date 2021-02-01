@@ -74,23 +74,6 @@ function addStoryToPage(story, prepend = false) {
   }
 }
 
-function toggleHeart($story) {
-  const $heart = $story.find('.fav-story-icon');
-  //toggle color
-  $heart.toggleClass('favorited');
-  // toggle solid vs outline
-  $heart.toggleClass('fas far');
-
-}
-function fillHeart($story) {
-  const $heart = $story.find('.fav-story-icon');
-  //toggle color
-  $heart.addClass('favorited');
-  // toggle solid vs outline
-  $heart.addClass('fas');
-  $heart.removeClass('far');
-}
-
 
 //TODO
 async function submitStory(evt) {
