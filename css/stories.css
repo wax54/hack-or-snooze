@@ -9,8 +9,12 @@
   font-size: 0.8rem;
   padding: 5px;
   margin-bottom :10px;
+  position: relative;
+  border-radius: 5px;
 }
-
+.stories-list > li:hover {
+  background-color: #ccc;
+}
 #stories-loading-msg {
   font-weight: bold;
   font-size: 150%;
@@ -22,7 +26,7 @@
 
 .story-link {
   color: black;
-  font-size: 0.85rem;
+  font-size: 1.2rem;
   font-weight: normal;
   margin: 18px 0;
 }
@@ -38,10 +42,20 @@
 .story-user {
   display: inline-block;
 }
-
+.delete-button{
+  position: absolute;
+  font-size: 2rem;
+  font-weight: 500;
+  float:right;
+  top:5px;
+  bottom:5px;
+  right:30px;
+}
+.delete-button:hover{
+  cursor: pointer;
+  
+}
 .fav-story-icon{
-  top:0;
-  bottom:0;
   float: left;
   font-size: 1.5rem;
   margin: 5px;

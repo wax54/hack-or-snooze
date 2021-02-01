@@ -27,6 +27,8 @@ class Story {
     // UNIMPLEMENTED: complete this function!
     return "hostname.com";
   }
+
+
 }
 
 
@@ -206,6 +208,29 @@ class User {
       return null;
     }
   }
+
+
+
+  async deleteStory(storyId) {
+
+    const isOwn = this.ownStories.findIndex(s => s.storyId == storyId);
+
+    if (isOwn === -1) return false; //not your story, can't delete it
+    //maybe should alert user?
+
+    try {
+      const res = await axios({
+        url: `${BASE_URL}/stories/${storyId}`,
+        method: 'DELETE',
+        data: { token: this.loginToken }
+      });
+      return true;
+    } catch (e) {
+      console.debug(e);
+      return false;
+    }
+  }
+
 
 
   async toggleFavoriteStory(storyId) {

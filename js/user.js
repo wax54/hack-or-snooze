@@ -116,6 +116,7 @@ function updateUIOnUserLogin() {
       toggleHeart($story);
     }
   }
+  
 
   hidePageComponents();
 

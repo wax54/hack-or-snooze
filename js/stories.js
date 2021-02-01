@@ -34,6 +34,7 @@ function generateStoryMarkup(story) {
         <small class="story-hostname">(${hostName})</small>
         <small class="story-author">by ${story.author}</small><br>
         <small class="story-user">posted by ${story.username}</small>
+        
       </li>
     `);
 }
@@ -55,15 +56,14 @@ function putStoriesOnPage() {
 
 function addStoryToPage(story, prepend = false) {
   const $story = generateStoryMarkup(story);
-  if (currentUser) {
-    //curr Story is a favorite of our user
-    // if (currentUser.favorites.includes(story.storyId)) {
-    //   toggleHeart($story);
-    // }
-  } else {
+  if (!currentUser) {
     //no user is logged in, hide heart
     const $heart = $story.find('.fav-story-icon').hide();
-
+  } else {
+    for (let { storyId } of currentUser.ownStories)
+      if (storyId === story.storyId) {
+        $story.append('<span class="delete-button">X</span>');
+      }
   }
 
   if (prepend) {
@@ -92,6 +92,7 @@ async function submitStory(evt) {
   const res = await storyList.addStory(currentUser, story);
   //res will be false on failure and a story on success
   if (res) {
+    currentUser.ownStories.push(res);
     addStoryToPage(res, true);
     $newStoryForm.trigger("reset");
     hidePageComponents();
@@ -113,3 +114,15 @@ function getNewStoryFromUI() {
 $newStoryForm.on("submit", submitStory);
 
 
+function handleStoryDelete(evt) {
+  const $story = $(this).parent();
+  const storyId = $story.attr('id');
+  if (currentUser.deleteStory(storyId)) {
+    $story.remove();
+  } else {
+    alert("Sorry, I couldn't delete the selected story for some reason...");
+  }
+
+}
+
+$allStoriesList.on('click', '.delete-button', handleStoryDelete);
