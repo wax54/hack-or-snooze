@@ -20,7 +20,7 @@ async function getAndShowStoriesOnStart() {
  */
 
 function generateStoryMarkup(story) {
-  // console.debug("generateStoryMarkup", story);
+  
 
   const hostName = story.getHostName();
   return $(`
@@ -42,7 +42,7 @@ function generateStoryMarkup(story) {
 /** Gets list of stories from server, generates their HTML, and puts on page. */
 
 function putStoriesOnPage() {
-  console.debug("putStoriesOnPage");
+
 
   $allStoriesList.empty();
 
@@ -84,7 +84,7 @@ function toggleHeart($story) {
 
 //TODO
 async function submitStory(evt) {
-  console.debug("Submit Story", evt);
+
   evt.preventDefault();
 
   const story = getNewStoryFromUI();
