@@ -28,13 +28,11 @@ $navLogin.on("click", navLoginClick);
 /** When a user first logins in, update the navbar to reflect that. */
 
 function updateNavOnLogin() {
-
-  $(".main-nav-links").show();
+  //show the user specific links on user login
+  $('.user-links').show();
+  //hide the login link
   $navLogin.hide();
-
-  $navSubmit.show();
-  $navLogOut.show();
-  $navUserProfile.text(`${currentUser.username}`).show();
+  $navUserProfile.text(`${currentUser.username}`);
 }
 
 function navSubmitClick(evt) {
