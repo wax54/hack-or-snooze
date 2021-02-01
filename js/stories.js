@@ -62,7 +62,7 @@ function addStoryToPage(story, prepend = false) {
   } else {
     for (let { storyId } of currentUser.ownStories)
       if (storyId === story.storyId) {
-        $story.append('<span class="delete-button">X</span>');
+        $story.append('<span class="delete-button">DELETE</span>');
       }
   }
 

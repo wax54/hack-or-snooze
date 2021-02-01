@@ -44,16 +44,19 @@
 }
 .delete-button{
   position: absolute;
-  font-size: 2rem;
+  font-size: 1.6rem;
   font-weight: 500;
   float:right;
   top:5px;
   bottom:5px;
+  padding:5px;
   right:30px;
+  border-radius: 8px;
 }
 .delete-button:hover{
   cursor: pointer;
-  
+  background-color: red;
+  color:white;
 }
 .fav-story-icon{
   float: left;
