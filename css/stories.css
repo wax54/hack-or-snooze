@@ -23,7 +23,9 @@
 
 
 /* Individual stories */
-
+.story{
+  display:inline-block;
+}
 .story-link {
   color: black;
   font-size: 1.2rem;
@@ -42,20 +44,35 @@
 .story-user {
   display: inline-block;
 }
+
+.user-buttons{
+    position: relative;
+    float:right;
+    margin:3px 0px;
+}
 .delete-button{
-  position: absolute;
   font-size: 1.6rem;
   font-weight: 500;
-  float:right;
-  top:5px;
-  bottom:5px;
   padding:5px;
-  right:30px;
+  line-height: 30px;
   border-radius: 8px;
 }
 .delete-button:hover{
   cursor: pointer;
   background-color: red;
+  color:white;
+}
+
+.mod-button{
+  font-size: 1.6rem;
+  font-weight: 500;
+  padding:5px;
+  line-height: 30px;
+  border-radius: 8px;
+}
+.mod-button:hover{
+  cursor: pointer;
+  background-color: grey;
   color:white;
 }
 .fav-story-icon{

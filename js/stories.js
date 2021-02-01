@@ -3,53 +3,23 @@
 // This is the global list of the stories, an instance of StoryList
 let storyList;
 
-
-
-/** Get all stories*/
-
-async function showAndShowAllStories() {
+/** Get and show all stories */
+async function getAndShowAllStories() {
   $storiesLoadingMsg.show();
   storyList = await StoryList.getStories();
   $storiesLoadingMsg.hide();
   putStoriesOnPage();
 }
-function showFavorites() {
-  storyList = new StoryList(currentUser.favorites);
-  putStoriesOnPage();
-}
-/**
- * A render method to render HTML for an individual Story instance
- * - story: an instance of Story
- *
- * Returns the markup for the story.
- */
 
-function generateStoryMarkup(story) {
-  
-
-  const hostName = story.getHostName();
-  return $(`
-      <li id="${story.storyId}">
-        <i class="fav-story-icon far fa-heart"></i>
-        <a href="${story.url}" target="a_blank" class="story-link">
-          ${story.title}
-        </a>
-        <small class="story-hostname">(${hostName})</small>
-        <small class="story-author">by ${story.author}</small><br>
-        <small class="story-user">posted by ${story.username}</small>
-        
-      </li>
-    `);
-}
 
 /** Gets list of stories from server, generates their HTML, and puts on page. */
 
-function putStoriesOnPage() {
+function putStoriesOnPage(prepend = false) {
+  //empty the stories on the page
   $allStoriesList.empty();
-
   // loop through all of our stories and generate HTML for them
   for (let story of storyList.stories) {
-    addStoryToPage(story);
+    addStoryToPage(story, prepend);
   }
   updateFavoritesOnPage();
   $allStoriesList.show();
@@ -57,16 +27,6 @@ function putStoriesOnPage() {
 
 function addStoryToPage(story, prepend = false) {
   const $story = generateStoryMarkup(story);
-  if (!currentUser) {
-    //no user is logged in, hide heart
-    const $heart = $story.find('.fav-story-icon').hide();
-  } else {
-  for (let { storyId } of currentUser.ownStories)
-    if (storyId === story.storyId) {
-      $story.append('<span class="delete-button">DELETE</span>');
-    }
-  }
-
   if (prepend) {
     $allStoriesList.prepend($story);
   } else {
@@ -75,46 +35,47 @@ function addStoryToPage(story, prepend = false) {
 }
 
 
-//TODO
-async function submitStory(evt) {
-
-  evt.preventDefault();
-
-  const story = getStoryInfoFromUI();
-  //add the story to the DB
-  const res = await storyList.addStory(currentUser, story);
-  //res will be false on failure and a story on success
-  if (res) {
-    currentUser.ownStories.push(res);
-    addStoryToPage(res, true);
-    $newStoryForm.trigger("reset");
-    hidePageComponents();
-    $allStoriesList.show();
-  } else {
-    //TODO: Let user Know
-  }
-}
-$newStoryForm.on("submit", submitStory);
-
 
 //TODO
-function getStoryInfoFromUI() {
+function getNewStoryInfoFromUI() {
   const title = $('#new-story-title').val();
   const author = $('#new-story-author').val();
   const url = $('#new-story-url').val();
   return { title, author, url };
 
 }
-
-function handleStoryDelete(evt) {
-  const $story = $(this).parent();
-  const storyId = $story.attr('id');
-  if (currentUser.deleteStory(storyId)) {
-    $story.remove();
-  } else {
-    alert("Sorry, I couldn't delete the selected story for some reason...");
-  }
+function getModStoryInfoFromUI() {
+  const title = $('#mod-story-title').val();
+  const author = $('#mod-story-author').val();
+  const url = $('#mod-story-url').val();
+  const storyId = $modStoryForm.data('story-id');
+  return {
+    story:
+      { title, author, url },
+    storyId
+  };
 
 }
 
-$allStoriesList.on('click', '.delete-button', handleStoryDelete);
+/**
+ * A render method to render HTML for an individual Story instance
+ * @param {Story} story: an instance of Story
+ *
+ * @returns the HTML markup for the story.
+ */
+
+function generateStoryMarkup(story) {
+  if (story.ownStory === undefined) {
+    story.ownStory = false;
+    if (currentUser) {
+      for (let { storyId } of currentUser.ownStories)
+        if (storyId === story.storyId) {
+          story.ownStory = true;
+          break;
+        }
+    }
+  }
+  story.hostName = story.getHostName();
+
+  return Mustache.render(storyTemplate, story);
+}

@@ -40,6 +40,7 @@
   <div class="nav-right">
     <a class="nav-link user-links hidden" href="#" id="nav-favorites">Favorites</a>
     <a class="nav-link user-links hidden" href="#" id="nav-submit">Submit</a>
+    <a class="nav-link user-links hidden" href="#" id="nav-own-stories">Posts</a>
     <a class="nav-link" href="#" id="nav-login">login/signup</a>
     <a class="nav-link user-links" href="#" id="nav-user-profile"></a>
     <a class="user-links hidden" id="nav-logout" href="#"><small>(logout)</small></a>
@@ -63,6 +64,7 @@
 <!-- New Story Form  -->
 <section class="story-form-container container">
 <form action="#" id="new-story-form" class="story-form hidden" method="post">
+  <h1>MAKE YOUR STORY!</h1>
   <div class="new-story-input">
     <label for="new-story-title">Title</label>
     <input type="text" id="new-story-title" placeholder="An Interesting Title">
@@ -80,6 +82,26 @@
 </form>
 </section>
 
+<!-- Update Story Form  -->
+<section class="modify-story-form-container container">
+  <form action="#" id="mod-story-form" class="story-form hidden" method="post">
+    <h1>UPDATE YOUR STORY!</h1>
+    <div class="mod-story-input">
+      <label for="mod-story-title">Title</label>
+      <input type="text" id="mod-story-title" placeholder="">
+    </div>
+    <div class="mod-story-input">
+      <label for="mod-story-author">Author</label>
+      <input type="text" id="mod-story-author" placeholder="">
+    </div>
+    <div class="mod-story-input">
+      <label for="mod-story-URL">Story URL</label>
+      <input type="url" id="mod-story-url" placeholder="" pattern="https?://.*">
+    </div>
+    <button type="submit">Update Story</button>
+
+  </form>
+</section>
 
 <!-- Login and signup forms -->
 <section class="account-forms-container container">
@@ -122,16 +144,43 @@
   </form>
 </section>
 
+<section id="templates">
+  <div class="template hidden" id="story-template">
+    <li id="{{storyId}}">
+      <i class="fav-story-icon far fa-heart"></i>
+      <div class="story">
+        <a href="{{{url}}}" target="a_blank" class="story-link">
+          {{title}}
+        </a>
+        <small class="story-hostname">({{{hostName}}})</small>
+        <small class="story-author">by {{author}}</small><br>
+
+        <small class="story-user">posted by {{username}}</small>
+      </div>
+      {{#ownStory}}
+      <div class="user-buttons">
+        <span class="mod-button">MOD</span>
+        <span class="delete-button">DEL</span>
+      </div>
+      {{/ownStory}}
+    </li>
+
+  </div>
+</section>
+
 <!-- Library JS & our JS -->
 <script src="https://unpkg.com/jquery"></script>
 <script src="https://unpkg.com/axios/dist/axios.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/4.1.0/mustache.min.js"
+  integrity="sha512-HYiNpwSxYuji84SQbCU5m9kHEsRqwWypXgJMBtbRSumlx1iBB6QaxgEBZHSHEGM+fKyCX/3Kb5V5jeVXm0OglQ=="
+  crossorigin="anonymous"></script>
 
 <script src="js/models.js"></script>
 <script src="js/main.js"></script>
 <script src="js/nav.js"></script>
 <script src="js/user.js"></script>
 <script src="js/stories.js"></script>
-<script src="js/stories_favorites.js"></script>
+<script src="js/favorites.js"></script>
 
 </body>
 </html>

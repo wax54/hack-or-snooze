@@ -4,7 +4,7 @@
 let currentUser;
 
 /******************************************************************************
- * User login/signup/login
+ * User login/signup/Auto-Login
  */
 
 /** Handle login form submission. If login ok, sets up the user instance */
@@ -106,6 +106,9 @@ function saveUserCredentialsInLocalStorage() {
   }
 }
 
+
+
+
 /******************************************************************************
  * General UI stuff about users
  */
@@ -127,48 +130,83 @@ function updateUIOnUserLogin() {
   updateNavOnLogin();
 }
 
-function updateFavoritesOnPage() {
-  if (!currentUser) return;
-  //add hearts to all stories already favorited by user
-  for (let { storyId } of currentUser.favorites) {
-    //get the li story from the DOM
-    const $story = $('#' + storyId);
-    //if it grabbed a object on the screen...
-    if ($story.length) {
-      //...fill the heart
-      fillHeart($story);
-    }
+/** Show all users favorite stories */
+function showOwnStories() {
+  storyList = new StoryList(currentUser.ownStories);
+  //the true is to reverse the order they are added to the page, 
+  //  so the most recent stories are on top
+  putStoriesOnPage(true);
+}
+
+//TODO
+async function submitStory(evt) {
+  evt.preventDefault();
+
+  const storyData = getNewStoryInfoFromUI();
+  //add the story to the DB
+  const returnedStory = await storyList.addStory(currentUser, storyData);
+  //res will be false on failure and a story on success
+  if (returnedStory) {
+    addStoryToPage(returnedStory, true);
+    $newStoryForm.trigger("reset");
+    hidePageComponents();
+    $allStoriesList.show();
+  } else {
+    //TODO: Let user Know
   }
 }
+$newStoryForm.on("submit", submitStory);
+
+function handleStoryDelete(evt) {
+  const $story = $(this).parent().parent();
+  const storyId = $story.attr('id');
+  if (currentUser.deleteStory(storyId)) {
+    $story.remove();
+  } else {
+    alert("Sorry, I couldn't delete the selected story for some reason...");
+  }
+}
+$allStoriesList.on('click', '.delete-button', handleStoryDelete);
 
 
-function handleStoryFavorite(evt) {
-  const $story = $(this).parent();
+function updateModStoryForm(storyId) {
+  const story = storyList.getStoryById(storyId);
+  if (!story) alert('Something went wrong, please refresh and try Again!');
+
+  const { title, url, author } = story;
+
+  $modStoryForm.data('story-id', storyId);
+
+  $('#mod-story-title').val(title);
+  $('#mod-story-author').val(author);
+  $('#mod-story-url').val(url);
+}
+
+function handleStoryModifyClick(evt) {
+  const $story = $(this).parent().parent();
   const storyId = $story.attr('id');
 
-  currentUser.toggleFavoriteStory(storyId);
-  
-  toggleHeart($story);
-
+  //hide everything
+  hidePageComponents();
+  updateModStoryForm(storyId);
+  $modStoryForm.show();
 }
+$allStoriesList.on('click', '.mod-button', handleStoryModifyClick);
 
-$allStoriesList.on('click', '.fav-story-icon', handleStoryFavorite);
 
+//TODO
+async function modifyStory(evt) {
+  evt.preventDefault();
 
-function toggleHeart($story) {
-  const $heart = $story.find('.fav-story-icon');
-  //toggle color
-  $heart.toggleClass('favorited');
-  // toggle solid vs outline
-  $heart.toggleClass('fas far');
-
+  const { story, storyId } = getModStoryInfoFromUI();
+  //update the story in the DB
+  const returnedStory = await currentUser.modifyStory(story, storyId);
+  //res will be false on failure and a story on success
+  if (returnedStory) {
+    navAllStories();
+    $modStoryForm.trigger("reset");
+  } else {
+    alert('something Went Wrong with that request... Try reloading the page?');
+  }
 }
-
-function fillHeart($story) {
-  const $heart = $story.find('.fav-story-icon');
-  //toggle color
-  $heart.addClass('favorited');
-  // toggle solid vs outline
-  $heart.addClass('fas');
-  $heart.removeClass('far');
-}
+$modStoryForm.on("submit", modifyStory);

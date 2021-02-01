@@ -92,6 +92,25 @@ class StoryList {
       return false;
     }
   }
+
+  getStoryById(storyId) {
+    const storyIdx = this.stories.findIndex(s => s.storyId === storyId);
+    if (storyIdx === -1) {
+      return false;
+    }
+    else return this.stories[storyIdx];
+  }
+
+  updateStoryById(storyId, updatedStory) {
+    const storyIdx = this.stories.findIndex(s => s.storyId === storyId);
+    if (storyIdx === -1) {
+      return false;
+    }
+    else {
+      this.stories[storyIdx] = updatedStory;
+      return true;
+    }
+  }
 }
 
 
@@ -208,13 +227,25 @@ class User {
     }
   }
 
+  async modifyStory(storyData, storyId) {
+    const res = await axios({
+      url: `${BASE_URL}/stories/${storyId}`,
+      method: 'PATCH',
+      data: {
+        token: this.loginToken,
+        story: storyData
+      }
+    });
 
+    return new Story(res.data.story);
+    
+  }
 
   async deleteStory(storyId) {
 
-    const isOwn = this.ownStories.findIndex(s => s.storyId == storyId);
+    const ownStoryIndex = this.ownStories.findIndex(s => s.storyId == storyId);
 
-    if (isOwn === -1) return false; //not your story, can't delete it
+    if (ownStoryIndex === -1) return false; //not your story, can't delete it
     //maybe should alert user?
 
     try {
@@ -223,6 +254,7 @@ class User {
         method: 'DELETE',
         data: { token: this.loginToken }
       });
+      this.ownStories.splice(ownStoryIndex, 1);
       return true;
     } catch (e) {
       console.debug(e);

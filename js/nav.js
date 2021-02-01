@@ -21,6 +21,14 @@ function navFavoritesClick(evt) {
 }
 $navFavorites.on("click", navFavoritesClick);
 
+/** Show own stories list on click on "Posts" */
+function navOwnStoriesClick(evt) {
+  //hide everything
+  hidePageComponents();
+  showOwnStories();
+}
+$navOwnStories.on("click", navOwnStoriesClick);
+
 
 /** Show new story form on click on "submit" */
 
