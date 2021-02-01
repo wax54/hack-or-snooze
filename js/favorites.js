@@ -9,7 +9,8 @@ function showFavorites() {
     storyList = new StoryList(currentUser.favorites);
     putStoriesOnPage(true);
 }
-/** AutoHearts all the users fav stories */
+
+/** AutoHearts all the currentUser's fav stories */
 function updateFavoritesOnPage() {
     if (!currentUser) return;
     //add hearts to all stories already favorited by user
@@ -50,16 +51,21 @@ function handleStoryFavorite(evt) {
 }
 $allStoriesList.on('click', '.fav-story-icon', handleStoryFavorite);
 
-
+/**
+ * Toggles the heart in the specified $story
+ * @param {jQuery Object} $story the li that contains the story
+ */
 function toggleHeart($story) {
     const $heart = $story.find('.fav-story-icon');
     //toggle color
     $heart.toggleClass('favorited');
     // toggle solid vs outline
     $heart.toggleClass('fas far');
-
 }
-
+/**
+ * Fills the heart in the specified $story
+ * @param {jQuery Object} $story the li that contains the story
+ */
 function fillHeart($story) {
     const $heart = $story.find('.fav-story-icon');
     //toggle color

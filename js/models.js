@@ -19,10 +19,12 @@ class Story {
     this.url = url;
     this.username = username;
     this.createdAt = createdAt;
+    //for mustache Rendering
+    this.hostName = this.getHostName();
+
   }
 
-  /** Parses hostname out of URL and returns it. */
-
+/** Parses hostname out of URL and returns it. */
   getHostName() {
     let url = new URL(this.url);
 
@@ -67,37 +69,50 @@ class StoryList {
     return new StoryList(stories);
   }
 
+
   /** Adds story data to API, makes a Story instance, adds it to story list.
    * @param { User } user the current instance of User who will post the story
-   * @param { Obj } newStory obj of {title, author, url}
+   * @param { Obj } newStory Obj containing at least {title, author, url}
    *
-   * @returns the new Story instance
+   * @returns the new Story instance or false on failure
    */
-
-  async addStory( user, newStory ) {
-
+  async addStory(user, newStory) {
     try{
         const res = await axios({
           url: `${BASE_URL}/stories`,
           method: 'POST',
           data: {token: user.loginToken, story: newStory}
         }); 
+        //getting the full Story object from the response
         newStory = new Story(res.data.story);
+        //add it to the storiesList
         this.stories.push(newStory);
-        currentUser.ownStories.push(newStory);
+        //add it to the CurrentUsers own stories list
+        //currentUser.ownStories.push(newStory);
+        //return the Story Object
         return newStory;
     }
     catch (e) {
       console.debug('ERROR! ', e);
+      //return false on failure
       return false;
     }
   }
 
+
+/** returns a Story based on the Id inputted
+ * @param { String } storyId the Id of the Story you want
+ *
+ * @returns the Story you wanted, or false on failure
+ */
   getStoryById(storyId) {
+    //checks all the stories for one that matches
     const storyIdx = this.stories.findIndex(s => s.storyId === storyId);
+    //if none match, return false
     if (storyIdx === -1) {
       return false;
     }
+    //returns the story you wanted
     else return this.stories[storyIdx];
   }
 
@@ -137,8 +152,8 @@ class User {
     this.createdAt = createdAt;
 
     // instantiate Story instances for the user's favorites and ownStories
-    this.favorites = favorites.map(s => new Story(s));
     this.ownStories = ownStories.map(s => new Story(s));
+    this.favorites = favorites.map(s => new Story(s));
 
     // store the login token on the user so it's easy to find for API calls.
     this.loginToken = token;
@@ -150,7 +165,6 @@ class User {
    * - password: a new password
    * - name: the user's full name
    */
-
   static async signup(username, password, name) {
     const response = await axios({
       url: `${BASE_URL}/signup`,
@@ -175,7 +189,6 @@ class User {
    * - username: an existing user's username
    * - password: an existing user's password
    */
-
   static async login(username, password) {
     const response = await axios({
       url: `${BASE_URL}/login`,
@@ -200,7 +213,6 @@ class User {
   /** When we already have credentials (token & username) for a user,
    *   we can log them in automatically. This function does that.
    */
-
   static async loginViaStoredCredentials(token, username) {
     try {
       const response = await axios({
@@ -227,6 +239,12 @@ class User {
     }
   }
 
+/**
+ * modify a user's story of the Id storyId
+ * @param { Object } storyData updated fields of the story.  Containing{title, author, website} at most
+ * @param { String } storyId the story Id of the story to be modified
+ * @returns { Story } an instance of story representing the new story data
+ */
   async modifyStory(storyData, storyId) {
     const res = await axios({
       url: `${BASE_URL}/stories/${storyId}`,
@@ -241,33 +259,46 @@ class User {
     
   }
 
+/**
+ * modify a user's story of the Id storyId
+ * @param { String } storyId the story Id of the story to be deleted
+ * @returns {Boolean} true on success, false on failure
+ */
   async deleteStory(storyId) {
-
+    // the index of the story in ownStories
     const ownStoryIndex = this.ownStories.findIndex(s => s.storyId == storyId);
-
+    //if it's not in there, we can't delete it
     if (ownStoryIndex === -1) return false; //not your story, can't delete it
     //maybe should alert user?
-
+    //try to delete it
     try {
       const res = await axios({
         url: `${BASE_URL}/stories/${storyId}`,
         method: 'DELETE',
         data: { token: this.loginToken }
       });
+      //if successfull, take it out of our stories 
       this.ownStories.splice(ownStoryIndex, 1);
+      //return true
       return true;
+    //delete failed
     } catch (e) {
+      //log error
       console.debug(e);
+      //return false
       return false;
     }
   }
 
 
-
+/**
+ * add or remove a story from a users favorite by ID
+ * @param { String } storyId the story Id of the story to be deleted
+ */
   async toggleFavoriteStory(storyId) {
+
     //preset the method, assumming we are going to like something
     let method = 'POST';
-    
     //if the story is already favorited,
     if (this.alreadyFavorited(storyId)) {
       //Already a favorite, delete it!
@@ -284,11 +315,34 @@ class User {
     //update the Users favorites 
     this.favorites = newFaves.map(s => new Story(s));
   }
+  
+  /** get an array of Id's for stories the User has created */
 
+  getOwnStoryIds() {
+    return this.ownStories.map(s => s.storyId);
+  }
+
+/** get an array of Id's for stories the User has favorited */
   getFavoriteIds() {
     return this.favorites.map(s => s.storyId);
   }
 
+  /** check to see if the Id inputted is a story created by User*/
+  isOwnStory(checkId) {
+    //returns -1 if checkId is not in this users favorite stories
+    const isOwnStory = this.getOwnStoryIds().findIndex(id => (
+      //if this story Id is the same as the one passed in, return true
+      id === checkId
+    ));
+    //The storyId inputted is not yours, return false
+    if (isOwnStory === -1) {
+      return false;
+    }
+    //otherwise, return true
+    return true;
+  }
+
+/** check to see if the Id inputted is already a favorite story of User*/
   alreadyFavorited(checkId) {
     //returns -1 if checkId is not in this users favorite stories
     const isFavorited = this.getFavoriteIds().findIndex(id => (

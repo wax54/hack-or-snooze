@@ -4,13 +4,12 @@
 let currentUser;
 
 /******************************************************************************
- * User login/signup/Auto-Login
+ * User login/signup/logout
  */
 
 /** Handle login form submission. If login ok, sets up the user instance */
-
 async function login(evt) {
-
+  //no page refresh
   evt.preventDefault();
 
   // grab the username and password
@@ -28,51 +27,54 @@ async function login(evt) {
   } catch (e) {
     alert("Those Creds Didn't Work, Bub. Try Again.");
   }
-
 }
-
+//login click listener
 $loginForm.on("submit", login);
 
-/** Handle signup form submissionput. */
 
+/** Handle signup form submission input. */
 async function signup(evt) {
-
+  //no page refreshh
   evt.preventDefault();
-
+  //get creds
   const name = $("#signup-name").val();
   const username = $("#signup-username").val();
   const password = $("#signup-password").val();
+
   try {
     // User.signup retrieves user info from API and returns User instance
     // which we'll make the globally-available, logged-in user.
     currentUser = await User.signup(username, password, name);
-
+    //save info neccessary to auto login in local storage
     saveUserCredentialsInLocalStorage();
+    //change the UI to a logged in user look
     updateUIOnUserLogin();
-
+    //reset all the inputs
     $signupForm.trigger("reset");
+    //if the signup didn't work...
   } catch (e) {
+    //log the error
     console.log(e);
+    //show differernt msgs based on what went wrong
     if (e.response.status == 409) alert('Sorry, Those Credentials Are Already Taken.');
     else alert("Sorry, We can't use those Credentials, try something else.");
   }
-
 }
-
+//listener fo signup form
 $signupForm.on("submit", signup);
 
 /** Handle click of logout button
  *
  * Remove their credentials from localStorage and refresh page
  */
-
 function logout(evt) {
-
+  //clears the creds in localstorage
   localStorage.clear();
+  //reload the page
   location.reload();
 }
-
 $navLogOut.on("click", logout);
+
 
 /******************************************************************************
  * Storing/recalling previously-logged-in-user with localStorage
@@ -119,7 +121,7 @@ function saveUserCredentialsInLocalStorage() {
  * - show the hearts
  * - heart already hearted stories
  * - update nav bar options for logged-in user
- * - generate the user profile part of the page
+ * - add the user profile section of the nav bar
  */
 
 function updateUIOnUserLogin() {
@@ -128,85 +130,175 @@ function updateUIOnUserLogin() {
   $('.fav-story-icon').show();
   updateFavoritesOnPage();
   updateNavOnLogin();
+  navAllStories();
 }
 
-/** Show all users favorite stories */
+
+/** Show all users own stories */
 function showOwnStories() {
   storyList = new StoryList(currentUser.ownStories);
-  //the true is to reverse the order they are added to the page, 
+  //the true is to prepend each story to the page, 
   //  so the most recent stories are on top
   putStoriesOnPage(true);
 }
 
-//TODO
-async function submitStory(evt) {
-  evt.preventDefault();
 
+/******************************************************************************
+ * UI New Story Functions
+ */
+
+
+/**
+ * Takes all the data in the form and submits the story to the API and updates the page
+ * @param { SubmitEvent } evt
+ */
+async function submitStory(evt) {
+  //no refresh
+  evt.preventDefault();
+  //gets the {title, author, url} from the page
   const storyData = getNewStoryInfoFromUI();
   //add the story to the DB
   const returnedStory = await storyList.addStory(currentUser, storyData);
-  //res will be false on failure and a story on success
+  //returnedStory will be false on failure and a story on success
   if (returnedStory) {
-    addStoryToPage(returnedStory, true);
+    //go back to home page
+    navAllStories();
+    //reset the form
     $newStoryForm.trigger("reset");
-    hidePageComponents();
-    $allStoriesList.show();
   } else {
-    //TODO: Let user Know
+    //API call Failiure
+    alert("Sorry, I don't seem to be able to add that story to the DB...Try Again?");
   }
 }
+//new story listener
 $newStoryForm.on("submit", submitStory);
 
+/**
+ * gets the new story data from the new-story-form
+ * @return { {title, author, url} } the story data from the form
+ */
+function getNewStoryInfoFromUI() {
+  const title = $('#new-story-title').val();
+  const author = $('#new-story-author').val();
+  const url = $('#new-story-url').val();
+  return { title, author, url };
+
+}
+
+
+/******************************************************************************
+ * UI Delete Story Functions
+ */
+
+/**
+ * Handles clicking on the Delete button next to a story
+ * @param {ClickEvent} evt
+ *
+ */
 function handleStoryDelete(evt) {
+  //get the story container 
   const $story = $(this).parent().parent();
+  //get the Id from the container
   const storyId = $story.attr('id');
+  //delete the story in the API
   if (currentUser.deleteStory(storyId)) {
+    //if success, remove the story from the UI too
     $story.remove();
   } else {
+    //otherwise, let the user know
     alert("Sorry, I couldn't delete the selected story for some reason...");
   }
 }
+//del story listener
 $allStoriesList.on('click', '.delete-button', handleStoryDelete);
 
 
+
+/******************************************************************************
+ * UI Modify Story Functions
+ */
+
+/**
+ * Handles clicking on the Modify button next to a story
+ * @param {ClickEvent} evt
+ */
+function handleStoryModifyClick(evt) {
+  //get the li the button refers to
+  const $story = $(this).parent().parent();
+  //get the Id of the story
+  const storyId = $story.attr('id');
+
+  //hide everything
+  hidePageComponents();
+  //update the form
+  updateModStoryForm(storyId);
+  //show the form
+  $modStoryForm.show();
+}
+//handle mod button click next to stories
+$allStoriesList.on('click', '.mod-button', handleStoryModifyClick);
+
+
+/**
+ * Updates the #mod-story-form to include the curr title, author, and url from the story
+ * note: stores the storyId in the forms data-story-id
+ * @param {String} storyId
+ *
+ */
 function updateModStoryForm(storyId) {
+  //get the story from the Id
   const story = storyList.getStoryById(storyId);
+  //stories not in the list
   if (!story) alert('Something went wrong, please refresh and try Again!');
-
+  // get the relevent data from the story
   const { title, url, author } = story;
-
+  //add the storyId to the forms data
   $modStoryForm.data('story-id', storyId);
-
+  //pre fill the inputs with the curr story data
   $('#mod-story-title').val(title);
   $('#mod-story-author').val(author);
   $('#mod-story-url').val(url);
 }
 
-function handleStoryModifyClick(evt) {
-  const $story = $(this).parent().parent();
-  const storyId = $story.attr('id');
 
-  //hide everything
-  hidePageComponents();
-  updateModStoryForm(storyId);
-  $modStoryForm.show();
-}
-$allStoriesList.on('click', '.mod-button', handleStoryModifyClick);
-
-
-//TODO
+/**
+ * handle the submission of story updates
+ * @param {SubmitEvent} evt
+ */
 async function modifyStory(evt) {
+  //no page refresh
   evt.preventDefault();
-
+  //get the objects from the function 
   const { story, storyId } = getModStoryInfoFromUI();
   //update the story in the DB
   const returnedStory = await currentUser.modifyStory(story, storyId);
-  //res will be false on failure and a story on success
+  //returnedStory will be false on failure and a story on success
   if (returnedStory) {
+    //refresh the page to get the updates from the server
     navAllStories();
+    //reset the form inputs
     $modStoryForm.trigger("reset");
   } else {
+    //couldn't modify the selected story
     alert('something Went Wrong with that request... Try reloading the page?');
   }
 }
+//submit listener
 $modStoryForm.on("submit", modifyStory);
+
+
+
+/**
+ * gets the new story data from the mod-story-form
+ * @return { {story:{title, author, url}, storyId} } the updated story data from the form
+ */
+function getModStoryInfoFromUI() {
+  const title = $('#mod-story-title').val();
+  const author = $('#mod-story-author').val();
+  const url = $('#mod-story-url').val();
+  const storyId = $modStoryForm.data('story-id');
+  return {
+    story: { title, author, url },
+    storyId
+  };
+}

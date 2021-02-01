@@ -33,7 +33,8 @@ function hidePageComponents() {
     $allStoriesList,
     $loginForm,
     $signupForm,
-    $newStoryForm
+    $newStoryForm,
+    $modStoryForm
   ];
   components.forEach(c => c.hide());
 }
@@ -42,11 +43,11 @@ function hidePageComponents() {
 /** Overall function to kick off the app. */
 async function start() {
 
-
   // "Remember logged-in user" and log in, if credentials in localStorage
   await checkForRememberedUser();
+  //show all the stories from the API
   await getAndShowAllStories();
-  // if we got a logged-in user
+  //if we got a logged-in user, update the UI
   if (currentUser) updateUIOnUserLogin();
 }
 
