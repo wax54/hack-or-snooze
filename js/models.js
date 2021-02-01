@@ -24,13 +24,13 @@ class Story {
   /** Parses hostname out of URL and returns it. */
 
   getHostName() {
-    // UNIMPLEMENTED: complete this function!
-    return "hostname.com";
+    let url = new URL(this.url);
+
+    return url.origin;
   }
 
 
 }
-
 
 /******************************************************************************
  * List of Story instances: used by UI to show story lists in DOM.
@@ -52,8 +52,7 @@ class StoryList {
   static async getStories() {
     // Note presence of `static` keyword: this indicates that getStories is
     //  **not** an instance method. Rather, it is a method that is called on the
-    //  class directly. Why doesn't it make sense for getStories to be an
-    //  instance method?
+    //  class directly. 
 
     // query the /stories endpoint (no auth required)
     const response = await axios({
@@ -85,7 +84,7 @@ class StoryList {
         }); 
         newStory = new Story(res.data.story);
         this.stories.push(newStory);
-      currentUser.ownStories.push(newStory);
+        currentUser.ownStories.push(newStory);
         return newStory;
     }
     catch (e) {
@@ -234,24 +233,41 @@ class User {
 
 
   async toggleFavoriteStory(storyId) {
-
+    //preset the method, assumming we are going to like something
     let method = 'POST';
-
-    const isFavorited = this.favorites.findIndex(s => s.storyId == storyId);
-
-    if (isFavorited !== -1) {
-      //Already a favorite, delete it
+    
+    //if the story is already favorited,
+    if (this.alreadyFavorited(storyId)) {
+      //Already a favorite, delete it!
       method = 'DELETE';
     }
-
+    //send it off!
     const res = await axios({
       url: `${BASE_URL}/users/${this.username}/favorites/${storyId}`,
       method: method,
       data: { token: this.loginToken }
     });
-
+    //the updated favorites returned from the server (just to stay current)
     const newFaves = res.data.user.favorites
-
+    //update the Users favorites 
     this.favorites = newFaves.map(s => new Story(s));
+  }
+
+  getFavoriteIds() {
+    return this.favorites.map(s => s.storyId);
+  }
+
+  alreadyFavorited(checkId) {
+    //returns -1 if checkId is not in this users favorite stories
+    const isFavorited = this.getFavoriteIds().findIndex(id => (
+      //if this story Id is the same as the one passed in, return true
+      id === checkId
+    ));
+    //if the storyId inputted is not already favored, return false
+    if (isFavorited === -1) {
+      return false;
+    }
+    //otherwise, return true
+    return true;
   }
 }

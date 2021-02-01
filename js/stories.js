@@ -3,15 +3,23 @@
 // This is the global list of the stories, an instance of StoryList
 let storyList;
 
-/** Get and show stories when site first loads. */
 
-async function getAndShowStoriesOnStart() {
+
+/** Get all stories*/
+async function getAllStories() {
   storyList = await StoryList.getStories();
-  $storiesLoadingMsg.remove();
-
-  putStoriesOnPage();
 }
 
+async function showAllStories() {
+  $storiesLoadingMsg.show();
+  await getAllStories();
+  $storiesLoadingMsg.hide();
+  putStoriesOnPage();
+}
+function showFavorites() {
+  storyList = new StoryList(currentUser.favorites);
+  putStoriesOnPage();
+}
 /**
  * A render method to render HTML for an individual Story instance
  * - story: an instance of Story
@@ -25,9 +33,7 @@ function generateStoryMarkup(story) {
   const hostName = story.getHostName();
   return $(`
       <li id="${story.storyId}">
-
         <i class="fav-story-icon far fa-heart"></i>
-
         <a href="${story.url}" target="a_blank" class="story-link">
           ${story.title}
         </a>
@@ -42,15 +48,13 @@ function generateStoryMarkup(story) {
 /** Gets list of stories from server, generates their HTML, and puts on page. */
 
 function putStoriesOnPage() {
-
-
   $allStoriesList.empty();
 
   // loop through all of our stories and generate HTML for them
   for (let story of storyList.stories) {
     addStoryToPage(story);
   }
-
+  updateFavoritesOnPage();
   $allStoriesList.show();
 }
 
@@ -60,10 +64,10 @@ function addStoryToPage(story, prepend = false) {
     //no user is logged in, hide heart
     const $heart = $story.find('.fav-story-icon').hide();
   } else {
-    for (let { storyId } of currentUser.ownStories)
-      if (storyId === story.storyId) {
-        $story.append('<span class="delete-button">DELETE</span>');
-      }
+  for (let { storyId } of currentUser.ownStories)
+    if (storyId === story.storyId) {
+      $story.append('<span class="delete-button">DELETE</span>');
+    }
   }
 
   if (prepend) {
@@ -81,13 +85,21 @@ function toggleHeart($story) {
   $heart.toggleClass('fas far');
 
 }
+function addHeart($story) {
+  const $heart = $story.find('.fav-story-icon');
+  //toggle color
+  $heart.addClass('favorited');
+  // toggle solid vs outline
+  $heart.addClass('fas');
+}
+
 
 //TODO
 async function submitStory(evt) {
 
   evt.preventDefault();
 
-  const story = getNewStoryFromUI();
+  const story = getStoryInfoFromUI();
   //add the story to the DB
   const res = await storyList.addStory(currentUser, story);
   //res will be false on failure and a story on success
@@ -101,18 +113,17 @@ async function submitStory(evt) {
     //TODO: Let user Know
   }
 }
+$newStoryForm.on("submit", submitStory);
+
 
 //TODO
-function getNewStoryFromUI() {
+function getStoryInfoFromUI() {
   const title = $('#new-story-title').val();
   const author = $('#new-story-author').val();
   const url = $('#new-story-url').val();
   return { title, author, url };
 
 }
-
-$newStoryForm.on("submit", submitStory);
-
 
 function handleStoryDelete(evt) {
   const $story = $(this).parent();

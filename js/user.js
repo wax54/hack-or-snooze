@@ -29,7 +29,7 @@ async function login(evt) {
 
 $loginForm.on("submit", login);
 
-/** Handle signup form submission. */
+/** Handle signup form submissionput. */
 
 async function signup(evt) {
 
@@ -108,23 +108,24 @@ function saveUserCredentialsInLocalStorage() {
  */
 
 function updateUIOnUserLogin() {
+  hidePageComponents();
+  $allStoriesList.show();
+  $('.fav-story-icon').show();
+  updateFavoritesOnPage();
+  updateNavOnLogin();
+}
 
-
+function updateFavoritesOnPage() {
+  if (!currentUser) return;
+  //add hearts to all stories already favorited by user
   for (let { storyId } of currentUser.favorites) {
     const $story = $('#' + storyId);
     if ($story.length) {
-      toggleHeart($story);
+      addHeart($story);
     }
   }
-  
-
-  hidePageComponents();
-
-  $allStoriesList.show();
-  $('.fav-story-icon').show();
-
-  updateNavOnLogin();
 }
+
 
 function handleStoryFavorite(evt) {
   const $story = $(this).parent();
@@ -137,3 +138,4 @@ function handleStoryFavorite(evt) {
 }
 
 $allStoriesList.on('click', '.fav-story-icon', handleStoryFavorite);
+
