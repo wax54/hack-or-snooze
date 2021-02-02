@@ -17,4 +17,9 @@ describe('users', () => {
         });
     });
 
+    describe('User.signup()', () => {
+        it('should ', () => {
+        });
+    });
+
 });
