@@ -85,8 +85,10 @@ function fillHeart($story) {
 
 function generateStoryMarkup(story) {
   const data = { ...story, ownStory: false };
-  if (story.username === currentUser.username) {
-    data.ownStory = true;
+  if (currentUser) {
+    if (story.username === currentUser.username) {
+      data.ownStory = true;
+    }
   }
   return Mustache.render(storyTemplate, data);
 }

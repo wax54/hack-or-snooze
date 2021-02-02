@@ -26,9 +26,12 @@ class Story {
 
 /** Parses hostname out of URL and returns it. */
   getHostName() {
-    let url = new URL(this.url);
-
-    return url.origin;
+    try {
+      let url = new URL(this.url);
+      return url.origin;
+    } catch (e) {
+      return 'Invalid HostName';
+    }
   }
 
 
