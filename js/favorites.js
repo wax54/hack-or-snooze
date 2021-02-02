@@ -62,6 +62,7 @@ function toggleHeart($story) {
     // toggle solid vs outline
     $heart.toggleClass('fas far');
 }
+
 /**
  * Fills the heart in the specified $story
  * @param {jQuery Object} $story the li that contains the story

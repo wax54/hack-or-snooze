@@ -86,9 +86,7 @@ class StoryList {
         //getting the full Story object from the response
         newStory = new Story(res.data.story);
         //add it to the storiesList
-        this.stories.push(newStory);
-        //add it to the CurrentUsers own stories list
-        //currentUser.ownStories.push(newStory);
+      this.stories.push(newStory);
         //return the Story Object
         return newStory;
     }
