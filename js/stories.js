@@ -15,15 +15,12 @@ async function getAndShowAllStories() {
   putStoriesOnPage();
 }
 
-
 /** uses storyList stories
  *  Generates HTML for all stories in storyList and puts each on page.
  *  @param {Boolean} prepend whether or not, the each story should be appended, or
  *        prepended to the list. Defaults to false(appending).
  *
  */
-
-
 function putStoriesOnPage(prepend = false) {
   //empty the stories on the page
   $allStoriesList.empty();
@@ -52,6 +49,31 @@ function addStoryToPage(story, prepend = false) {
   } else {
     $allStoriesList.append(DOMStory);
   }
+}
+
+/**
+ * Toggles the heart in the specified $story
+ * @param {jQuery Object} $story the li that contains the story
+ */
+function toggleHeart($story) {
+  const $heart = $story.find('.fav-story-icon');
+  //toggle color
+  $heart.toggleClass('favorited');
+  // toggle solid vs outline
+  $heart.toggleClass('fas far');
+}
+
+/**
+ * Fills the heart in the specified $story
+ * @param {jQuery Object} $story the li that contains the story
+ */
+function fillHeart($story) {
+  const $heart = $story.find('.fav-story-icon');
+  //toggle color
+  $heart.addClass('favorited');
+  // toggle solid vs outline
+  $heart.addClass('fas');
+  $heart.removeClass('far');
 }
 
 /**

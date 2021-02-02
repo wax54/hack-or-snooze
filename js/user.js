@@ -133,7 +133,6 @@ function updateUIOnUserLogin() {
   navAllStories();
 }
 
-
 /** Show all users own stories */
 function showOwnStories() {
   storyList = new StoryList(currentUser.ownStories);
@@ -142,9 +141,61 @@ function showOwnStories() {
   putStoriesOnPage(true);
 }
 
+/** Show all users favorite stories */
+function showFavorites() {
+  storyList = new StoryList(currentUser.favorites);
+  putStoriesOnPage(true);
+}
 
 /******************************************************************************
- * UI New Story Functions
+ * User Favorite manipulation
+ */
+
+/** AutoHearts all the currentUser's fav stories */
+function updateFavoritesOnPage() {
+  if (!currentUser) return;
+  //add hearts to all stories already favorited by user
+  for (let { storyId } of currentUser.favorites) {
+    //get the li story from the DOM
+    const $story = $('#' + storyId);
+    //if it grabbed a object on the screen...
+    if ($story.length) {
+      //...fill the heart
+      fillHeart($story);
+    }
+  }
+}
+
+/**
+ * When a user clicks the Heart next to a story,
+ * -If you're logged in
+ *      -Toggle whether it's in your fav stories or not
+ *      -Toggle whether the heart next to it is filled in
+ * -else
+ *      -reDirect client to Loggingin/signup screen
+ *      -alert the user why
+ */
+function handleStoryFavorite(evt) {
+  if (currentUser) {
+    const $story = $(this).parent();
+    const storyId = $story.attr('id');
+    currentUser.toggleFavoriteStory(storyId);
+    toggleHeart($story);
+  }
+  else {
+    $navLogin.click();
+    setTimeout(() => {
+      alert('You Must Be Logged In To Like Stories!');
+    }, 200);
+  }
+
+}
+$allStoriesList.on('click', '.fav-story-icon', handleStoryFavorite);
+
+
+
+/******************************************************************************
+ * Submit Story Functions - UI
  */
 
 
@@ -187,7 +238,7 @@ function getNewStoryInfoFromUI() {
 
 
 /******************************************************************************
- * UI Delete Story Functions
+ * Delete Story Functions - UI
  */
 
 /**
@@ -215,7 +266,7 @@ $allStoriesList.on('click', '.delete-button', handleStoryDelete);
 
 
 /******************************************************************************
- * UI Modify Story Functions
+ * Modify Story Functions - UI
  */
 
 /**
